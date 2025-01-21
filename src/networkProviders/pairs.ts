@@ -27,7 +27,7 @@ export class PairOnNetwork {
     }
 
     static fromApiHttpResponse(payload: any): PairOnNetwork {
-        let result = new PairOnNetwork();
+        const result = new PairOnNetwork();
 
         result.address = new Address(payload.address || "");
         result.id = payload.id || "";

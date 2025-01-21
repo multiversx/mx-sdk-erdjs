@@ -6,6 +6,7 @@ import {
     SmartContractTransactionsFactory,
     SmartContractTransactionsOutcomeParser,
 } from "../smartContracts";
+import { stringifyBigIntJSON } from "../testutils";
 import { createLocalnetProvider } from "../testutils/networkProviders";
 import { loadTestWallets, TestWallet } from "../testutils/wallets";
 import { TransactionComputer } from "../transactionComputer";
@@ -49,14 +50,14 @@ describe("test on local testnet", function () {
         let network = await provider.getNetworkConfig();
         await alice.sync(provider);
 
-        const config = new TransactionsFactoryConfig({ chainID: network.ChainID });
+        const config = new TransactionsFactoryConfig({ chainID: network.chainID });
         const factory = new SmartContractTransactionsFactory({ config: config });
 
         const bytecode = await promises.readFile("src/testdata/counter.wasm");
 
         const deployTransaction = factory.createTransactionForDeploy(alice.address, {
             bytecode: bytecode,
-            gasLimit: 3000000n,
+            gasLimit: 4000000n,
         });
         deployTransaction.nonce = BigInt(alice.account.nonce.valueOf());
 
@@ -71,7 +72,7 @@ describe("test on local testnet", function () {
         const smartContractCallTransaction = factory.createTransactionForExecute(alice.address, {
             contract: contractAddress,
             function: "increment",
-            gasLimit: 3000000n,
+            gasLimit: 4000000n,
         });
         smartContractCallTransaction.nonce = BigInt(alice.account.nonce.valueOf());
         smartContractCallTransaction.signature = await alice.signer.sign(
@@ -83,7 +84,7 @@ describe("test on local testnet", function () {
         const simulateOne = factory.createTransactionForExecute(alice.address, {
             function: "increment",
             contract: contractAddress,
-            gasLimit: 100000n,
+            gasLimit: 200000n,
         });
 
         simulateOne.nonce = BigInt(alice.account.nonce.valueOf());
@@ -96,7 +97,7 @@ describe("test on local testnet", function () {
         const simulateTwo = factory.createTransactionForExecute(alice.address, {
             function: "foobar",
             contract: contractAddress,
-            gasLimit: 500000n,
+            gasLimit: 700000n,
         });
 
         simulateTwo.nonce = BigInt(alice.account.nonce.valueOf());
@@ -109,7 +110,6 @@ describe("test on local testnet", function () {
         // Broadcast & execute
         const deployTxHash = await provider.sendTransaction(deployTransaction);
         const callTxHash = await provider.sendTransaction(smartContractCallTransaction);
-
         await watcher.awaitCompleted(deployTxHash);
         let transactionOnNetwork = await provider.getTransaction(deployTxHash);
         let response = parser.parseExecute({ transactionOnNetwork });
@@ -122,8 +122,8 @@ describe("test on local testnet", function () {
         assert.isTrue(response.returnCode == "ok");
 
         // Simulate
-        Logger.trace(JSON.stringify(await provider.simulateTransaction(simulateOne), null, 4));
-        Logger.trace(JSON.stringify(await provider.simulateTransaction(simulateTwo), null, 4));
+        Logger.trace(stringifyBigIntJSON(await provider.simulateTransaction(simulateOne)));
+        Logger.trace(stringifyBigIntJSON(await provider.simulateTransaction(simulateTwo)));
     });
 
     it("counter: should deploy, call and query contract using SmartContractTransactionsFactory", async function () {
@@ -135,7 +135,7 @@ describe("test on local testnet", function () {
         let network = await provider.getNetworkConfig();
         await alice.sync(provider);
 
-        const config = new TransactionsFactoryConfig({ chainID: network.ChainID });
+        const config = new TransactionsFactoryConfig({ chainID: network.chainID });
         const factory = new SmartContractTransactionsFactory({ config: config });
 
         const bytecode = await promises.readFile("src/testdata/counter.wasm");
@@ -213,7 +213,7 @@ describe("test on local testnet", function () {
         let network = await provider.getNetworkConfig();
         await alice.sync(provider);
 
-        const config = new TransactionsFactoryConfig({ chainID: network.ChainID });
+        const config = new TransactionsFactoryConfig({ chainID: network.chainID });
         const factory = new SmartContractTransactionsFactory({ config: config });
 
         const bytecode = await promises.readFile("src/testdata/erc20.wasm");
@@ -316,7 +316,7 @@ describe("test on local testnet", function () {
         let network = await provider.getNetworkConfig();
         await alice.sync(provider);
 
-        const config = new TransactionsFactoryConfig({ chainID: network.ChainID });
+        const config = new TransactionsFactoryConfig({ chainID: network.chainID });
         const factory = new SmartContractTransactionsFactory({ config: config });
 
         const bytecode = await promises.readFile("src/testdata/lottery-esdt.wasm");

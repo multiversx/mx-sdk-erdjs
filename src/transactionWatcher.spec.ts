@@ -35,7 +35,7 @@ describe("test transactionWatcher", () => {
             watcher.awaitCompleted(dummyTransaction.getHash().hex()),
         ]);
 
-        assert.isTrue((await provider.getTransactionStatus(hash.hex())).isExecuted());
+        assert.isTrue((await provider.getTransactionStatus(hash.hex())).isCompleted());
     });
 
     it("should await status == executed using transaction", async () => {
@@ -67,6 +67,6 @@ describe("test transactionWatcher", () => {
             watcher.awaitCompleted(dummyTransaction),
         ]);
 
-        assert.isTrue((await provider.getTransactionStatus(hash.hex())).isExecuted());
+        assert.isTrue((await provider.getTransactionStatus(hash.hex())).isCompleted());
     });
 });

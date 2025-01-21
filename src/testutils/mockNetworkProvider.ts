@@ -7,15 +7,20 @@ import {
     AccountOnNetwork,
     DefinitionOfFungibleTokenOnNetwork,
     DefinitionOfTokenCollectionOnNetwork,
-    FungibleTokenOfAccountOnNetwork,
     NetworkConfig,
-    NetworkGeneralStatistics,
-    NetworkStake,
     NetworkStatus,
-    NonFungibleTokenOfAccountOnNetwork,
 } from "../networkProviders";
 import { INetworkProvider, IPagination } from "../networkProviders/interface";
+import {
+    AccountStorage,
+    AccountStorageEntry,
+    AwaitingOptions,
+    BlockOnNetwork,
+    TokenAmountOnNetwork,
+    TransactionCostResponse,
+} from "../networkProviders/resources";
 import { SmartContractQuery, SmartContractQueryResponse } from "../smartContractQuery";
+import { Token } from "../tokens";
 import { Transaction, TransactionHash } from "../transaction";
 import { TransactionOnNetwork } from "../transactionOnNetwork";
 import { SmartContractResult } from "../transactionsOutcomeParsers";
@@ -56,47 +61,58 @@ export class MockNetworkProvider implements INetworkProvider {
             }),
         );
     }
+    getBlock(): Promise<BlockOnNetwork> {
+        throw new Error("Method not implemented.");
+    }
+    getLatestBlock(_shard: number): Promise<BlockOnNetwork> {
+        throw new Error("Method not implemented.");
+    }
+    getAccountStorage(_address: Address): Promise<AccountStorage> {
+        throw new Error("Method not implemented.");
+    }
+    getAccountStorageEntry(_address: Address, _entryKey: string): Promise<AccountStorageEntry> {
+        throw new Error("Method not implemented.");
+    }
+    awaitAccountOnCondition(
+        _address: Address,
+        _condition: (account: AccountOnNetwork) => boolean,
+        _options?: AwaitingOptions,
+    ): AccountOnNetwork {
+        throw new Error("Method not implemented.");
+    }
+    estimateTransactionCost(_tx: Transaction): Promise<TransactionCostResponse> {
+        throw new Error("Method not implemented.");
+    }
+    awaitTransactionOnCondition(
+        _transactionHash: string,
+        _condition: (account: TransactionOnNetwork) => boolean,
+        _options?: AwaitingOptions,
+    ): Promise<TransactionOnNetwork> {
+        throw new Error("Method not implemented.");
+    }
+    awaitTransactionCompleted(_transactionHash: string, _options?: AwaitingOptions): Promise<TransactionOnNetwork> {
+        throw new Error("Method not implemented.");
+    }
+    getTokenOfAccount(_address: Address, _token: Token): Promise<TokenAmountOnNetwork> {
+        throw new Error("Method not implemented.");
+    }
     getNetworkStatus(): Promise<NetworkStatus> {
         throw new Error("Method not implemented.");
     }
-    getNetworkStakeStatistics(): Promise<NetworkStake> {
+
+    getFungibleTokensOfAccount(_address: Address, _pagination?: IPagination): Promise<TokenAmountOnNetwork[]> {
         throw new Error("Method not implemented.");
     }
-    getNetworkGeneralStatistics(): Promise<NetworkGeneralStatistics> {
+    getNonFungibleTokensOfAccount(_address: Address, _pagination?: IPagination): Promise<TokenAmountOnNetwork[]> {
         throw new Error("Method not implemented.");
     }
-    getFungibleTokensOfAccount(
-        _address: Address,
-        _pagination?: IPagination,
-    ): Promise<FungibleTokenOfAccountOnNetwork[]> {
-        throw new Error("Method not implemented.");
-    }
-    getNonFungibleTokensOfAccount(
-        _address: Address,
-        _pagination?: IPagination,
-    ): Promise<NonFungibleTokenOfAccountOnNetwork[]> {
-        throw new Error("Method not implemented.");
-    }
-    getFungibleTokenOfAccount(_address: Address, _tokenIdentifier: string): Promise<FungibleTokenOfAccountOnNetwork> {
-        throw new Error("Method not implemented.");
-    }
-    getNonFungibleTokenOfAccount(
-        _address: Address,
-        _collection: string,
-        _nonce: number,
-    ): Promise<NonFungibleTokenOfAccountOnNetwork> {
-        throw new Error("Method not implemented.");
-    }
-    sendTransactions(_txs: Transaction[]): Promise<string[]> {
+    sendTransactions(_txs: Transaction[]): Promise<[number, string[]]> {
         throw new Error("Method not implemented.");
     }
     getDefinitionOfFungibleToken(_tokenIdentifier: string): Promise<DefinitionOfFungibleTokenOnNetwork> {
         throw new Error("Method not implemented.");
     }
     getDefinitionOfTokenCollection(_collection: string): Promise<DefinitionOfTokenCollectionOnNetwork> {
-        throw new Error("Method not implemented.");
-    }
-    getNonFungibleToken(_collection: string, _nonce: number): Promise<NonFungibleTokenOfAccountOnNetwork> {
         throw new Error("Method not implemented.");
     }
     doGetGeneric(_resourceUrl: string): Promise<any> {

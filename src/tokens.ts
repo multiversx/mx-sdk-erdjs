@@ -1,6 +1,7 @@
 import BigNumber from "bignumber.js";
 import { EGLD_IDENTIFIER_FOR_MULTI_ESDTNFT_TRANSFER } from "./constants";
 import { ErrInvalidArgument, ErrInvalidTokenIdentifier } from "./errors";
+import { numberToPaddedHex } from "./utils.codec";
 
 // Legacy constants:
 const EGLDTokenIdentifier = "EGLD";
@@ -259,6 +260,24 @@ export class TokenComputer {
             return prefix + "-" + ticker + "-" + randomSequence;
         }
         return ticker + "-" + randomSequence;
+    }
+
+    computeExtendedIdentifier(token: Token): string {
+        const parts = token.identifier.split("-");
+        const { prefix, ticker, randomSequence } = this.splitIdentifierIntoComponents(parts);
+
+        this.validateExtendedIdentifier(prefix, ticker, randomSequence, parts);
+
+        if (token.nonce < 0) {
+            throw new Error("The token nonce can't be less than 0");
+        }
+
+        if (token.nonce === 0n) {
+            return token.identifier;
+        }
+
+        const nonceAsHex = numberToPaddedHex(token.nonce);
+        return `${token.identifier}-${nonceAsHex}`;
     }
 
     private validateExtendedIdentifier(

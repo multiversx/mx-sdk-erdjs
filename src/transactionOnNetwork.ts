@@ -68,7 +68,7 @@ export class TransactionOnNetwork {
         response: any,
         processStatus?: TransactionStatus | undefined,
     ): TransactionOnNetwork {
-        let result = TransactionOnNetwork.fromHttpResponse(txHash, response);
+        const result = TransactionOnNetwork.fromHttpResponse(txHash, response);
         result.smartContractResults =
             response.smartContractResults?.map(
                 (result: Partial<SmartContractResult>) =>
@@ -88,8 +88,53 @@ export class TransactionOnNetwork {
         return result;
     }
 
+    static fromSimulateResponse(originalTx: Transaction, response: any): TransactionOnNetwork {
+        const status = new TransactionStatus(response["status"]);
+        const txHash = response["hash"] ?? "";
+        const scResults: SmartContractResult[] = [];
+        const results = response["scResults"] || {};
+        for (const hash in results) {
+            const result = results[hash];
+
+            const scResult = new SmartContractResult({
+                ...result,
+                receiver: result.receiver ? new Address(result.receiver) : undefined,
+                sender: result.sender ? new Address(result.sender) : undefined,
+                raw: result,
+            });
+            scResults.push(scResult);
+        }
+
+        let result = new TransactionOnNetwork();
+        result.hash = txHash;
+        result.type = response.type || "";
+        result.nonce = BigInt(originalTx.nonce || 0);
+        result.round = -1n;
+        result.epoch = -1;
+        result.value = BigInt((originalTx.value || 0).toString());
+        result.sender = new Address(originalTx.sender);
+        result.receiver = new Address(originalTx.receiver);
+        result.gasPrice = BigInt(originalTx.gasPrice) || 0n;
+        result.gasLimit = BigInt(originalTx.gasLimit) || 0n;
+        result.function = "";
+        result.data = originalTx.data ? Buffer.from(originalTx.data?.toString()) : Buffer.from("");
+        result.version = originalTx.version || 1;
+        result.options = originalTx.options || 0;
+        result.timestamp = 0;
+        result.miniblockHash = "";
+        result.blockHash = "";
+        result.logs = TransactionLogs.fromHttpResponse(response.logs || {});
+        result.raw = response;
+        result.smartContractResults = scResults;
+
+        result.status = status;
+        result.isCompleted = status.isSuccessful() || status.isFailed();
+
+        return result;
+    }
+
     static fromApiHttpResponse(txHash: string, response: any): TransactionOnNetwork {
-        let result = TransactionOnNetwork.fromHttpResponse(txHash, response);
+        const result = TransactionOnNetwork.fromHttpResponse(txHash, response);
         result.smartContractResults =
             response.results?.map(
                 (result: Partial<SmartContractResult>) =>

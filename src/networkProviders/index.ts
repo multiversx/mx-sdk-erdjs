@@ -10,6 +10,4 @@ export { DefinitionOfFungibleTokenOnNetwork, DefinitionOfTokenCollectionOnNetwor
 export { FungibleTokenOfAccountOnNetwork, NonFungibleTokenOfAccountOnNetwork } from "./tokens";
 
 export { NetworkConfig } from "./networkConfig";
-export { NetworkGeneralStatistics } from "./networkGeneralStatistics";
-export { NetworkStake } from "./networkStake";
 export { NetworkStatus } from "./networkStatus";

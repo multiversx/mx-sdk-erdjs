@@ -38,7 +38,7 @@ export class NonFungibleTokenOfAccountOnNetwork {
     }
 
     static fromProxyHttpResponse(payload: any): NonFungibleTokenOfAccountOnNetwork {
-        let result = NonFungibleTokenOfAccountOnNetwork.fromHttpResponse(payload);
+        const result = NonFungibleTokenOfAccountOnNetwork.fromHttpResponse(payload);
 
         result.identifier = payload.tokenIdentifier || "";
         result.collection = NonFungibleTokenOfAccountOnNetwork.parseCollectionFromIdentifier(result.identifier);
@@ -48,7 +48,7 @@ export class NonFungibleTokenOfAccountOnNetwork {
     }
 
     static fromProxyHttpResponseByNonce(payload: any): NonFungibleTokenOfAccountOnNetwork {
-        let result = NonFungibleTokenOfAccountOnNetwork.fromHttpResponse(payload);
+        const result = NonFungibleTokenOfAccountOnNetwork.fromHttpResponse(payload);
         let nonceAsHex = numberToPaddedHex(result.nonce);
 
         result.identifier = `${payload.tokenIdentifier}-${nonceAsHex}`;
@@ -59,7 +59,7 @@ export class NonFungibleTokenOfAccountOnNetwork {
     }
 
     static fromApiHttpResponse(payload: any): NonFungibleTokenOfAccountOnNetwork {
-        let result = NonFungibleTokenOfAccountOnNetwork.fromHttpResponse(payload);
+        const result = NonFungibleTokenOfAccountOnNetwork.fromHttpResponse(payload);
 
         result.identifier = payload.identifier || "";
         result.collection = payload.collection || "";

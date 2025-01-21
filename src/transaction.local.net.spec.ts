@@ -2,7 +2,7 @@ import BigNumber from "bignumber.js";
 import { assert } from "chai";
 import { Logger } from "./logger";
 import { INetworkProvider } from "./networkProviders/interface";
-import { loadTestWallets, TestWallet } from "./testutils";
+import { loadTestWallets, stringifyBigIntJSON, TestWallet } from "./testutils";
 import { createLocalnetProvider } from "./testutils/networkProviders";
 import { TokenTransfer } from "./tokens";
 import { Transaction } from "./transaction";
@@ -40,16 +40,16 @@ describe("test transaction", function () {
             sender: alice.address,
             receiver: bob.address,
             value: TokenTransfer.newFromNativeAmount(42000000000000000000n).amount,
-            gasLimit: BigInt(network.MinGasLimit),
-            chainID: network.ChainID,
+            gasLimit: BigInt(network.minGasLimit),
+            chainID: network.chainID,
         });
 
         let transactionTwo = new Transaction({
             sender: alice.address,
             receiver: bob.address,
             value: TokenTransfer.newFromNativeAmount(43000000000000000000n).amount,
-            gasLimit: BigInt(network.MinGasLimit),
-            chainID: network.ChainID,
+            gasLimit: BigInt(network.minGasLimit),
+            chainID: network.chainID,
         });
 
         await alice.sync(provider);
@@ -90,8 +90,8 @@ describe("test transaction", function () {
             sender: alice.address,
             receiver: bob.address,
             value: TokenTransfer.newFromNativeAmount(42n).amount,
-            gasLimit: BigInt(network.MinGasLimit),
-            chainID: network.ChainID,
+            gasLimit: BigInt(network.minGasLimit),
+            chainID: network.chainID,
         });
 
         await alice.sync(provider);
@@ -125,7 +125,7 @@ describe("test transaction", function () {
             gasLimit: 70000n,
             receiver: alice.address,
             value: TokenTransfer.newFromNativeAmount(1000n).amount,
-            chainID: network.ChainID,
+            chainID: network.chainID,
         });
 
         let transactionTwo = new Transaction({
@@ -134,7 +134,7 @@ describe("test transaction", function () {
             gasLimit: 70000n,
             receiver: alice.address,
             value: TokenTransfer.newFromNativeAmount(1000000n).amount,
-            chainID: network.ChainID,
+            chainID: network.chainID,
         });
 
         transactionOne.setNonce(alice.account.nonce);
@@ -143,8 +143,8 @@ describe("test transaction", function () {
         await signTransaction({ transaction: transactionOne, wallet: alice });
         await signTransaction({ transaction: transactionTwo, wallet: alice });
 
-        Logger.trace(JSON.stringify(await provider.simulateTransaction(transactionOne), null, 4));
-        Logger.trace(JSON.stringify(await provider.simulateTransaction(transactionTwo), null, 4));
+        Logger.trace(stringifyBigIntJSON(await provider.simulateTransaction(transactionOne)));
+        Logger.trace(stringifyBigIntJSON(await provider.simulateTransaction(transactionTwo)));
     });
 
     it("should create transaction using the TokenTransferFactory", async function () {
@@ -155,7 +155,7 @@ describe("test transaction", function () {
 
         const network = await provider.getNetworkConfig();
 
-        const config = new TransactionsFactoryConfig({ chainID: network.ChainID });
+        const config = new TransactionsFactoryConfig({ chainID: network.chainID });
         const factory = new TransferTransactionsFactory({ config: config });
 
         await alice.sync(provider);

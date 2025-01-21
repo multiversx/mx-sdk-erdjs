@@ -1,3 +1,4 @@
+import { CodeMetadata } from "../abi";
 import { Address } from "../address";
 
 /**
@@ -7,22 +8,70 @@ export class AccountOnNetwork {
     address: Address = Address.empty();
     nonce: bigint = 0n;
     balance: bigint = 0n;
-    code: string = "";
     userName: string = "";
+
+    contractCodeHash?: string;
+    contractCode?: Uint8Array;
+    contractDeveloperReward?: bigint;
+    contractOwnerAddress?: Address;
+
+    isContractUpgradable?: boolean;
+    isContractReadable?: boolean;
+    isContractPayable?: boolean;
+    isContractPayableByContract?: boolean;
+
+    isGuarded: boolean = false;
 
     constructor(init?: Partial<AccountOnNetwork>) {
         Object.assign(this, init);
     }
 
-    static fromHttpResponse(payload: any): AccountOnNetwork {
-        let result = new AccountOnNetwork();
+    static fromApiHttpResponse(payload: any): AccountOnNetwork {
+        const result = new AccountOnNetwork();
 
-        result.address = new Address(payload["address"] || "");
+        result.address = payload["address"] ? new Address(payload["address"]) : Address.empty();
         result.nonce = BigInt(payload["nonce"] || 0);
         result.balance = BigInt(payload["balance"] || 0);
-        result.code = payload["code"] || "";
-        result.userName = payload["username"] || "";
+        result.userName = payload["username"] || undefined;
 
+        result.contractCodeHash = payload["codeHash"] || "";
+        result.contractCode = Buffer.from(payload["code"] || "");
+        result.contractDeveloperReward = payload["developerReward"] || 0n;
+        result.contractOwnerAddress = payload["ownerAddress"] ? new Address(payload["ownerAddress"]) : undefined;
+        result.isContractUpgradable = Boolean(payload["isUpgradeable"]);
+        result.isContractReadable = Boolean(payload["isReadable"]);
+        result.isContractPayable = Boolean(payload["isPayable"]);
+        result.isContractPayableByContract = Boolean(payload["isPayableBySmartContract"]);
+        result.isGuarded = Boolean(payload["isGuarded"]);
+        return result;
+    }
+
+    static fromProxyHttpResponse(payload: any): AccountOnNetwork {
+        const result = new AccountOnNetwork();
+
+        result.address = payload["address"] ? new Address(payload["address"]) : Address.empty();
+        result.nonce = BigInt(payload["nonce"] || 0);
+        result.balance = BigInt(payload["balance"] || 0);
+        result.userName = payload["username"] || undefined;
+
+        const codeMetadata = payload["codeMetadata"] ?? null;
+        result.isContractUpgradable = false;
+        result.isContractReadable = false;
+        result.isContractPayable = false;
+        result.isContractPayableByContract = false;
+        if (codeMetadata) {
+            const metadataBuffer = Buffer.from(codeMetadata, "base64");
+            const metadata = CodeMetadata.newFromBytes(metadataBuffer);
+            result.isContractUpgradable = metadata.upgradeable;
+            result.isContractReadable = metadata.readable;
+            result.isContractPayable = metadata.payable;
+            result.isContractPayableByContract = metadata.payableBySc;
+        }
+        result.contractCodeHash = payload["codeHash"] || "";
+        result.contractCode = Buffer.from(payload["code"] || "");
+        result.contractDeveloperReward = payload["developerReward"] || 0n;
+        result.contractOwnerAddress = payload["ownerAddress"] ? new Address(payload["ownerAddress"]) : undefined;
+        result.isGuarded = Boolean(payload["isGuarded"]);
         return result;
     }
 }

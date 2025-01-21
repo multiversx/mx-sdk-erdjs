@@ -7,13 +7,9 @@ import { TransactionOnNetwork } from "../transactionOnNetwork";
 import { ApiNetworkProvider } from "./apiNetworkProvider";
 import { INetworkProvider } from "./interface";
 import { ProxyNetworkProvider } from "./proxyNetworkProvider";
-import { NonFungibleTokenOfAccountOnNetwork } from "./tokens";
 
 describe("test network providers on devnet: Proxy and API", function () {
     let alice = new Address("erd1qyu5wthldzr8wx5c9ucg8kjagg0jfs53s8nr3zpz3hypefsdd8ssycr6th");
-    let carol = new Address("erd1k2s324ww2g0yj38qn2ch2jwctdy8mnfxep94q9arncc6xecg3xaq6mjse8");
-    let dan = new Address("erd1kyaqzaprcdnv4luvanah0gfxzzsnpaygsy6pytrexll2urtd05ts9vegu7");
-    const MAX_NUMBER_OF_ITEMS_BY_DEFAULT = 20;
 
     let apiProvider: INetworkProvider = new ApiNetworkProvider("https://devnet-api.multiversx.com", {
         timeout: 10000,
@@ -31,8 +27,8 @@ describe("test network providers on devnet: Proxy and API", function () {
         const apiResponse = await apiProviderWithoutConfig.getNetworkConfig();
         const proxyResponse = await proxyProviderWithoutConfig.getNetworkConfig();
 
-        assert.equal(apiResponse.ChainID, "D");
-        assert.equal(proxyResponse.ChainID, "D");
+        assert.equal(apiResponse.chainID, "D");
+        assert.equal(proxyResponse.chainID, "D");
     });
 
     it("should have same response for getNetworkConfig()", async function () {
@@ -91,106 +87,12 @@ describe("test network providers on devnet: Proxy and API", function () {
         assert.equal(localProxyProvider.config.headers.getUserAgent(), expectedProxyUserAgent);
     });
 
-    it("should have same response for getNetworkStatus()", async function () {
-        let apiResponse = await apiProvider.getNetworkStatus();
-        let proxyResponse = await proxyProvider.getNetworkStatus();
-
-        assert.equal(apiResponse.EpochNumber, proxyResponse.EpochNumber);
-        assert.equal(apiResponse.NonceAtEpochStart, proxyResponse.NonceAtEpochStart);
-        assert.equal(apiResponse.RoundAtEpochStart, proxyResponse.RoundAtEpochStart);
-        assert.equal(apiResponse.RoundsPerEpoch, proxyResponse.RoundsPerEpoch);
-        // done this way because the nonces may change until both requests are executed
-        assert.approximately(apiResponse.CurrentRound, proxyResponse.CurrentRound, 1);
-        assert.approximately(apiResponse.HighestFinalNonce, proxyResponse.HighestFinalNonce, 1);
-        assert.approximately(apiResponse.Nonce, proxyResponse.Nonce, 1);
-        assert.approximately(apiResponse.NoncesPassedInCurrentEpoch, proxyResponse.NoncesPassedInCurrentEpoch, 1);
-    });
-
-    // TODO: Enable test after implementing ProxyNetworkProvider.getNetworkStakeStatistics().
-    it.skip("should have same response for getNetworkStakeStatistics()", async function () {
-        let apiResponse = await apiProvider.getNetworkStakeStatistics();
-        let proxyResponse = await proxyProvider.getNetworkStakeStatistics();
-
-        assert.deepEqual(apiResponse, proxyResponse);
-    });
-
-    // TODO: Enable test after implementing ProxyNetworkProvider.getNetworkGeneralStatistics().
-    it.skip("should have same response for getNetworkGeneralStatistics()", async function () {
-        let apiResponse = await apiProvider.getNetworkGeneralStatistics();
-        let proxyResponse = await proxyProvider.getNetworkGeneralStatistics();
-
-        assert.deepEqual(apiResponse, proxyResponse);
-    });
-
     it("should have same response for getAccount()", async function () {
         let apiResponse = await apiProvider.getAccount(alice);
         let proxyResponse = await proxyProvider.getAccount(alice);
 
         assert.deepEqual(apiResponse, proxyResponse);
     });
-
-    it("should have same response for getFungibleTokensOfAccount(), getFungibleTokenOfAccount()", async function () {
-        this.timeout(30000);
-
-        for (const user of [carol, dan]) {
-            let apiResponse = (await apiProvider.getFungibleTokensOfAccount(user)).slice(
-                0,
-                MAX_NUMBER_OF_ITEMS_BY_DEFAULT,
-            );
-            let proxyResponse = (await proxyProvider.getFungibleTokensOfAccount(user)).slice(
-                0,
-                MAX_NUMBER_OF_ITEMS_BY_DEFAULT,
-            );
-
-            for (let i = 0; i < apiResponse.length; i++) {
-                assert.equal(apiResponse[i].identifier, proxyResponse[i].identifier);
-                assert.equal(apiResponse[i].balance.valueOf, proxyResponse[i].balance.valueOf);
-            }
-        }
-    });
-
-    it("should have same response for getNonFungibleTokensOfAccount(), getNonFungibleTokenOfAccount", async function () {
-        this.timeout(30000);
-
-        let apiResponse = (await apiProvider.getNonFungibleTokensOfAccount(dan)).slice(
-            0,
-            MAX_NUMBER_OF_ITEMS_BY_DEFAULT,
-        );
-        let proxyResponse = (await proxyProvider.getNonFungibleTokensOfAccount(dan)).slice(
-            0,
-            MAX_NUMBER_OF_ITEMS_BY_DEFAULT,
-        );
-
-        assert.isTrue(apiResponse.length > 0, "For the sake of the test, there should be at least one item.");
-        assert.equal(apiResponse.length, proxyResponse.length);
-
-        for (let i = 0; i < apiResponse.length; i++) {
-            removeInconsistencyForNonFungibleTokenOfAccount(apiResponse[i], proxyResponse[i]);
-        }
-
-        assert.deepEqual(apiResponse, proxyResponse);
-
-        const item = apiResponse[0];
-        let apiItemResponse = await apiProvider.getNonFungibleTokenOfAccount(dan, item.collection, item.nonce);
-        let proxyItemResponse = await proxyProvider.getNonFungibleTokenOfAccount(dan, item.collection, item.nonce);
-
-        removeInconsistencyForNonFungibleTokenOfAccount(apiItemResponse, proxyItemResponse);
-        assert.deepEqual(apiResponse, proxyResponse, `user: ${dan.toBech32()}, token: ${item.identifier}`);
-    });
-
-    // TODO: Strive to have as little differences as possible between Proxy and API.
-    function removeInconsistencyForNonFungibleTokenOfAccount(
-        apiResponse: NonFungibleTokenOfAccountOnNetwork,
-        proxyResponse: NonFungibleTokenOfAccountOnNetwork,
-    ) {
-        // unset unconsistent fields
-        apiResponse.type = "";
-        proxyResponse.type = "";
-        apiResponse.name = "";
-        proxyResponse.name = "";
-        apiResponse.decimals = 0;
-        proxyResponse.decimals = 0;
-    }
 
     it("should be able to send transaction(s)", async function () {
         this.timeout(5000);
@@ -241,9 +143,10 @@ describe("test network providers on devnet: Proxy and API", function () {
 
         assert.equal(await apiProvider.sendTransaction(txs[0]), expectedHashes[0]);
         assert.equal(await proxyProvider.sendTransaction(txs[1]), expectedHashes[1]);
-
-        assert.deepEqual(await apiProvider.sendTransactions(txs), expectedHashes);
-        assert.deepEqual(await proxyProvider.sendTransactions(txs), expectedHashes);
+        const [, apiHashes] = await apiProvider.sendTransactions(txs);
+        const [, proxyHashes] = await proxyProvider.sendTransactions(txs);
+        assert.deepEqual(apiHashes, expectedHashes);
+        assert.deepEqual(proxyHashes, expectedHashes);
     });
 
     it("should have same response for getTransaction()", async function () {
@@ -264,6 +167,22 @@ describe("test network providers on devnet: Proxy and API", function () {
             // Also assert completion
             assert.isTrue(apiResponse.isCompleted);
             assert.isTrue(proxyResponse.isCompleted);
+        }
+    });
+
+    it("should have same response for getTransactionStatus()", async function () {
+        this.timeout(20000);
+
+        let hashes = [
+            "08acf8cbd71306a56eb58f9593cb2e23f109c94e27acdd906c82a5c3a5f84d9d",
+            "410efb1db2ab86678b8dbc503beb695b5b7d52754fb0de86c09cbb433de5f6a8",
+        ];
+
+        for (const hash of hashes) {
+            let apiResponse = await apiProvider.getTransactionStatus(hash);
+            let proxyResponse = await proxyProvider.getTransactionStatus(hash);
+
+            assert.deepEqual(apiResponse, proxyResponse, `transaction: ${hash}`);
         }
     });
 
@@ -317,22 +236,6 @@ describe("test network providers on devnet: Proxy and API", function () {
         );
     });
 
-    it("should have same response for getTransactionStatus()", async function () {
-        this.timeout(20000);
-
-        let hashes = [
-            "08acf8cbd71306a56eb58f9593cb2e23f109c94e27acdd906c82a5c3a5f84d9d",
-            "410efb1db2ab86678b8dbc503beb695b5b7d52754fb0de86c09cbb433de5f6a8",
-        ];
-
-        for (const hash of hashes) {
-            let apiResponse = await apiProvider.getTransactionStatus(hash);
-            let proxyResponse = await proxyProvider.getTransactionStatus(hash);
-
-            assert.deepEqual(apiResponse, proxyResponse, `transaction: ${hash}`);
-        }
-    });
-
     it("should have same response for getDefinitionOfFungibleToken()", async function () {
         this.timeout(10000);
 
@@ -359,22 +262,6 @@ describe("test network providers on devnet: Proxy and API", function () {
 
             assert.equal(apiResponse.collection, collection);
             assert.deepEqual(apiResponse, proxyResponse);
-        }
-    });
-
-    it("should have same response for getNonFungibleToken()", async function () {
-        this.timeout(10000);
-
-        let tokens = [{ id: "TEST-37adcf", nonce: 1 }];
-
-        for (const token of tokens) {
-            let apiResponse = await apiProvider.getNonFungibleToken(token.id, token.nonce);
-
-            assert.equal(apiResponse.collection, token.id);
-
-            // TODO: Uncomment after implementing the function in the proxy provider.
-            // let proxyResponse = await proxyProvider.getNonFungibleToken(token.id, token.nonce);
-            // assert.deepEqual(apiResponse, proxyResponse);
         }
     });
 

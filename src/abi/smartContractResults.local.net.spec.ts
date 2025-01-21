@@ -44,14 +44,14 @@ describe("fetch transactions from local testnet", function () {
             codePath: "src/testdata/counter.wasm",
             gasLimit: 3000000n,
             initArguments: [],
-            chainID: network.ChainID,
+            chainID: network.chainID,
         });
 
         // ++
         let transactionIncrement = contract.call({
             func: new ContractFunction("increment"),
             gasLimit: 3000000n,
-            chainID: network.ChainID,
+            chainID: network.chainID,
             caller: alice.address,
         });
 
@@ -86,7 +86,7 @@ describe("fetch transactions from local testnet", function () {
         let network = await provider.getNetworkConfig();
         await alice.sync(provider);
 
-        const config = new TransactionsFactoryConfig({ chainID: network.ChainID });
+        const config = new TransactionsFactoryConfig({ chainID: network.chainID });
         const factory = new SmartContractTransactionsFactory({ config: config });
 
         const bytecode = await promises.readFile("src/testdata/counter.wasm");

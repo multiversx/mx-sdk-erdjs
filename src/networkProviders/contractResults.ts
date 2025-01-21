@@ -13,7 +13,7 @@ export class ContractResults {
     }
 
     static fromProxyHttpResponse(results: any[]): ContractResults {
-        let items = results.map((item) => ContractResultItem.fromProxyHttpResponse(item));
+        const items = results.map((item) => ContractResultItem.fromProxyHttpResponse(item));
         return new ContractResults(items);
     }
 
@@ -43,7 +43,7 @@ export class ContractResultItem {
     }
 
     static fromProxyHttpResponse(response: any): ContractResultItem {
-        let item = ContractResultItem.fromHttpResponse(response);
+        const item = ContractResultItem.fromHttpResponse(response);
         return item;
     }
 

@@ -68,7 +68,7 @@ class NetworkEntrypoint {
         return (await this.networkProvider.getAccount(address)).nonce;
     }
 
-    sendTransactions(transactions: Transaction[]): Promise<string[]> {
+    sendTransactions(transactions: Transaction[]): Promise<[number, string[]]> {
         return this.networkProvider.sendTransactions(transactions);
     }
 

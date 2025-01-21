@@ -32,7 +32,7 @@ describe("test smart contract interactor", function () {
         let network = await provider.getNetworkConfig();
         await alice.sync(provider);
 
-        const config = new TransactionsFactoryConfig({ chainID: network.ChainID });
+        const config = new TransactionsFactoryConfig({ chainID: network.chainID });
         const factory = new SmartContractTransactionsFactory({
             config: config,
             abi: abiRegistry,
@@ -141,7 +141,7 @@ describe("test smart contract interactor", function () {
             codePath: "src/testdata/basic-features.wasm",
             gasLimit: 600000000n,
             initArguments: [],
-            chainID: network.ChainID,
+            chainID: network.chainID,
         });
         let deployTxHash = await provider.sendTransaction(deployTransaction);
         let deployResponse = await controller.awaitCompletedDeploy(deployTxHash);
@@ -151,7 +151,7 @@ describe("test smart contract interactor", function () {
             contract.methods
                 .returns_egld_decimal([])
                 .withGasLimit(10000000n)
-                .withChainID(network.ChainID)
+                .withChainID(network.chainID)
                 .withSender(alice.address)
                 .withValue(1n)
         );
@@ -165,7 +165,7 @@ describe("test smart contract interactor", function () {
         let additionInteraction = <Interaction>contract.methods
             .managed_decimal_addition([new ManagedDecimalValue("2.5", 2), new ManagedDecimalValue("2.7", 2)])
             .withGasLimit(10000000n)
-            .withChainID(network.ChainID)
+            .withChainID(network.chainID)
             .withSender(alice.address)
             .withValue(0n);
 
@@ -179,7 +179,7 @@ describe("test smart contract interactor", function () {
         let mdLnInteraction = <Interaction>contract.methods
             .managed_decimal_ln([new ManagedDecimalValue("23", 9)])
             .withGasLimit(10000000n)
-            .withChainID(network.ChainID)
+            .withChainID(network.chainID)
             .withSender(alice.address)
             .withValue(0n);
 
@@ -195,7 +195,7 @@ describe("test smart contract interactor", function () {
                 new ManagedDecimalValue("5", 2, true),
             ])
             .withGasLimit(50000000n)
-            .withChainID(network.ChainID)
+            .withChainID(network.chainID)
             .withSender(alice.address)
             .withValue(0n);
 
@@ -208,7 +208,7 @@ describe("test smart contract interactor", function () {
         let lnVarInteraction = <Interaction>contract.methods
             .managed_decimal_ln_var([new ManagedDecimalValue("23", 9, true)])
             .withGasLimit(50000000n)
-            .withChainID(network.ChainID)
+            .withChainID(network.chainID)
             .withSender(alice.address)
             .withValue(0n);
 
@@ -268,7 +268,7 @@ describe("test smart contract interactor", function () {
         let network = await provider.getNetworkConfig();
         await alice.sync(provider);
 
-        const config = new TransactionsFactoryConfig({ chainID: network.ChainID });
+        const config = new TransactionsFactoryConfig({ chainID: network.chainID });
         const factory = new SmartContractTransactionsFactory({
             config: config,
             abi: abiRegistry,
@@ -370,7 +370,7 @@ describe("test smart contract interactor", function () {
         let network = await provider.getNetworkConfig();
         await alice.sync(provider);
 
-        const config = new TransactionsFactoryConfig({ chainID: network.ChainID });
+        const config = new TransactionsFactoryConfig({ chainID: network.chainID });
         const factory = new SmartContractTransactionsFactory({
             config: config,
             abi: abiRegistry,

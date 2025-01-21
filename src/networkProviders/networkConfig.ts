@@ -1,65 +1,65 @@
-import BigNumber from "bignumber.js";
-
 /**
  * An object holding Network configuration parameters.
  */
 export class NetworkConfig {
+    raw: Record<string, any> = {};
     /**
      * The chain ID. E.g. "1" for the Mainnet.
      */
-    public ChainID: string;
+    public chainID: string;
 
     /**
      * The gas required by the Network to process a byte of the transaction data.
      */
-    public GasPerDataByte: number;
-    /**
-     * The round duration.
-     */
-    public RoundDuration: number;
-    /**
-     * The number of rounds per epoch.
-     */
-    public RoundsPerEpoch: number;
+    public gasPerDataByte: bigint;
 
-    /**
-     * The Top Up Factor for APR calculation
-     */
-    public TopUpFactor: number;
-
-    /**
-     * The Top Up Factor for APR calculation
-     */
-    public TopUpRewardsGradientPoint: BigNumber;
-
-    public GasPriceModifier: number;
+    public gasPriceModifier: number;
 
     /**
      * The minimum gas limit required to be set when broadcasting a transaction.
      */
-    public MinGasLimit: number;
+    public minGasLimit: bigint;
 
     /**
      * The minimum gas price required to be set when broadcasting a transaction.
      */
-    public MinGasPrice: number;
+    public minGasPrice: bigint;
 
     /**
-     * The oldest transaction version accepted by the Network.
+     * The extra gas needed for guarded transactions.
      */
-    public MinTransactionVersion: number;
+    public extraGasLimitForGuardedTransactions: bigint;
+
+    /**
+     * The number of shards.
+     */
+    public numShards: number;
+
+    /**
+     * The round duration.
+     */
+    public roundDuration: number;
+    /**
+     * The number of rounds per epoch.
+     */
+    public numRoundsPerEpoch: number;
+
+    /**
+     * The genesis timestamp
+     */
+    public genesisTimestamp: number;
 
     constructor() {
-        this.ChainID = "T";
-        this.GasPerDataByte = 1500;
-        this.TopUpFactor = 0;
-        this.RoundDuration = 0;
-        this.RoundsPerEpoch = 0;
-        this.TopUpRewardsGradientPoint = new BigNumber(0);
-        this.MinGasLimit = 50000;
-        this.MinGasPrice = 1000000000;
-        this.GasPriceModifier = 1;
-        this.MinTransactionVersion = 1;
+        this.chainID = "";
+        this.gasPerDataByte = 0n;
+        this.genesisTimestamp = 0;
+        this.roundDuration = 0;
+        this.numRoundsPerEpoch = 0;
+        this.minGasLimit = 0n;
+        this.minGasPrice = 0n;
+        this.extraGasLimitForGuardedTransactions = 0n;
+        this.gasPriceModifier = 1;
+        this.numShards = 0;
     }
 
     /**
@@ -68,16 +68,17 @@ export class NetworkConfig {
     static fromHttpResponse(payload: any): NetworkConfig {
         let networkConfig = new NetworkConfig();
 
-        networkConfig.ChainID = String(payload["erd_chain_id"]);
-        networkConfig.GasPerDataByte = Number(payload["erd_gas_per_data_byte"]);
-        networkConfig.TopUpFactor = Number(payload["erd_top_up_factor"]);
-        networkConfig.RoundDuration = Number(payload["erd_round_duration"]);
-        networkConfig.RoundsPerEpoch = Number(payload["erd_rounds_per_epoch"]);
-        networkConfig.TopUpRewardsGradientPoint = new BigNumber(payload["erd_rewards_top_up_gradient_point"]);
-        networkConfig.MinGasLimit = Number(payload["erd_min_gas_limit"]);
-        networkConfig.MinGasPrice = Number(payload["erd_min_gas_price"]);
-        networkConfig.MinTransactionVersion = Number(payload["erd_min_transaction_version"]);
-        networkConfig.GasPriceModifier = Number(payload["erd_gas_price_modifier"]);
+        networkConfig.raw = payload;
+        networkConfig.chainID = String(payload["erd_chain_id"]);
+        networkConfig.gasPerDataByte = BigInt(payload["erd_gas_per_data_byte"]);
+        networkConfig.gasPriceModifier = Number(payload["erd_top_up_factor"]);
+        networkConfig.minGasLimit = BigInt(payload["erd_min_gas_limit"]);
+        networkConfig.minGasPrice = BigInt(payload["erd_min_gas_price"]);
+        networkConfig.extraGasLimitForGuardedTransactions = BigInt(payload["erd_extra_gas_limit_guarded_tx"]);
+        networkConfig.numShards = Number(payload["erd_num_shards_without_meta"]);
+        networkConfig.roundDuration = Number(payload["erd_round_duration"]);
+        networkConfig.numRoundsPerEpoch = Number(payload["erd_rounds_per_epoch"]);
+        networkConfig.genesisTimestamp = Number(payload["erd_start_time"]);
 
         return networkConfig;
     }

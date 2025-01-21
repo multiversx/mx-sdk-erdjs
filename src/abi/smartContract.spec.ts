@@ -85,7 +85,7 @@ describe("test contract", () => {
             watcher.awaitCompleted(deployTransaction.getHash().hex()),
         ]);
 
-        assert.isTrue((await provider.getTransactionStatus(hash)).isExecuted());
+        assert.isTrue((await provider.getTransaction(hash)).status.isCompleted());
     });
 
     it("should call", async () => {
@@ -154,8 +154,8 @@ describe("test contract", () => {
             watcher.awaitCompleted(callTransactionTwo.getHash().hex()),
         ]);
 
-        assert.isTrue((await provider.getTransactionStatus(hashOne)).isExecuted());
-        assert.isTrue((await provider.getTransactionStatus(hashTwo)).isExecuted());
+        assert.isTrue((await provider.getTransaction(hashOne)).status.isCompleted());
+        assert.isTrue((await provider.getTransaction(hashTwo)).status.isCompleted());
     });
 
     it("should upgrade", async () => {
@@ -200,7 +200,7 @@ describe("test contract", () => {
             watcher.awaitCompleted(deployTransaction.getHash().hex()),
         ]);
 
-        assert.isTrue((await provider.getTransactionStatus(hash)).isExecuted());
+        assert.isTrue((await provider.getTransaction(hash)).status.isCompleted());
     });
 
     it("v13 should be stricter than v12 on optional<variadic<type>> (exotic) parameters (since NativeSerializer is used under the hood)", async () => {

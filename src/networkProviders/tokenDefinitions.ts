@@ -20,7 +20,7 @@ export class DefinitionOfFungibleTokenOnNetwork {
     assets: Record<string, any> = {};
 
     static fromApiHttpResponse(payload: any): DefinitionOfFungibleTokenOnNetwork {
-        let result = new DefinitionOfFungibleTokenOnNetwork();
+        const result = new DefinitionOfFungibleTokenOnNetwork();
 
         result.identifier = payload.identifier || "";
         result.name = payload.name || "";
@@ -87,7 +87,7 @@ export class DefinitionOfTokenCollectionOnNetwork {
     canCreateMultiShard: boolean = false;
 
     static fromApiHttpResponse(payload: any): DefinitionOfTokenCollectionOnNetwork {
-        let result = new DefinitionOfTokenCollectionOnNetwork();
+        const result = new DefinitionOfTokenCollectionOnNetwork();
 
         result.collection = payload.collection || "";
         result.type = payload.type || "";
